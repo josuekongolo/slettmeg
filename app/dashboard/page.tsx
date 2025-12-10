@@ -1,6 +1,3 @@
-"use client";
-
-import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   HiOutlineGlobe,
@@ -12,131 +9,88 @@ import {
   HiOutlineDocumentText,
 } from "react-icons/hi";
 import { RiRobot2Line } from "react-icons/ri";
-import { CgSpinner } from "react-icons/cg";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useDeletionStore } from "@/lib/stores/deletion-store";
-import { platforms as allPlatforms } from "@/lib/platforms-data";
 import { PlatformIcon } from "@/components/platform-icon";
+import { getCurrentUser } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { redirect } from "next/navigation";
 
 const statusConfig = {
-  pending: { label: "Venter", variant: "secondary" as const, dot: "bg-yellow-500" },
-  submitted: { label: "Sendt", variant: "default" as const, dot: "bg-blue-500" },
-  in_progress: { label: "Behandles", variant: "default" as const, dot: "bg-blue-500" },
-  completed: { label: "Fullført", variant: "success" as const, dot: "bg-green-500" },
-  action_required: { label: "Handling", variant: "warning" as const, dot: "bg-red-500" },
-  rejected: { label: "Avvist", variant: "destructive" as const, dot: "bg-red-500" },
+  PENDING: { label: "Venter", variant: "secondary" as const, dot: "bg-yellow-500" },
+  SUBMITTED: { label: "Sendt", variant: "default" as const, dot: "bg-blue-500" },
+  IN_PROGRESS: { label: "Behandles", variant: "default" as const, dot: "bg-blue-500" },
+  COMPLETED: { label: "Fullført", variant: "success" as const, dot: "bg-green-500" },
+  ACTION_REQUIRED: { label: "Handling", variant: "warning" as const, dot: "bg-red-500" },
+  REJECTED: { label: "Avvist", variant: "destructive" as const, dot: "bg-red-500" },
 };
 
-export default function DashboardPage() {
-  const [hasMounted, setHasMounted] = useState(false);
-  const { requests, userPlatforms, getStats } = useDeletionStore();
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
 
-  // Prevent hydration mismatch by waiting for client-side mount
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  const stats = useMemo(() => {
-    const storeStats = getStats();
-    const activePlatforms = Object.values(userPlatforms).filter(
-      (p) => p.status === "in_progress" || p.status === "action_required"
-    ).length;
-    const completedPlatforms = Object.values(userPlatforms).filter(
-      (p) => p.status === "completed"
-    ).length;
-
-    return {
-      activePlatforms,
-      completedPlatforms,
-      pending: storeStats.pending + storeStats.inProgress,
-      actionRequired: storeStats.actionRequired,
-      totalRequests: storeStats.total,
-    };
-  }, [userPlatforms, getStats]);
-
-  // Calculate overall progress
-  const overallProgress = useMemo(() => {
-    if (requests.length === 0) return 0;
-    const totalSteps = requests.reduce((acc, r) => acc + (r.steps?.length || 0), 0);
-    const completedSteps = requests.reduce(
-      (acc, r) => acc + (r.steps?.filter((s) => s.completed).length || 0),
-      0
-    );
-    return totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
-  }, [requests]);
-
-  // Get recent requests (last 5)
-  const recentRequests = useMemo(() => {
-    return [...requests]
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 5);
-  }, [requests]);
-
-  // Get suggested platforms (popular ones not started)
-  const suggestedPlatforms = useMemo(() => {
-    const popularIds = ["facebook", "instagram", "google", "tiktok", "linkedin", "spotify"];
-    return allPlatforms
-      .filter((p) => popularIds.includes(p.id) && !userPlatforms[p.id])
-      .slice(0, 4);
-  }, [userPlatforms]);
-
-  // Show loading skeleton during hydration to prevent mismatch
-  if (!hasMounted) {
-    return (
-      <div className="space-y-8">
-        {/* Header Skeleton */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <Skeleton className="h-8 w-48 mb-2" />
-            <Skeleton className="h-4 w-64" />
-          </div>
-          <Skeleton className="h-10 w-40" />
-        </div>
-
-        {/* Stats Grid Skeleton */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-lg border bg-card p-3.5 shadow-sm">
-              <Skeleton className="h-8 w-8 rounded-md mb-2.5" />
-              <Skeleton className="h-8 w-12 mb-1" />
-              <Skeleton className="h-3 w-24" />
-            </div>
-          ))}
-        </div>
-
-        {/* Main Content Skeleton */}
-        <div className="grid gap-6 lg:grid-cols-5">
-          <div className="rounded-xl border bg-card p-6 shadow-sm lg:col-span-3">
-            <Skeleton className="h-6 w-32 mb-2" />
-            <Skeleton className="h-4 w-48 mb-6" />
-            <Skeleton className="h-2 w-full mb-4" />
-            <div className="grid grid-cols-3 gap-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="text-center">
-                  <Skeleton className="h-8 w-8 mx-auto mb-1" />
-                  <Skeleton className="h-3 w-16 mx-auto" />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-xl border bg-card p-6 shadow-sm lg:col-span-2">
-            <Skeleton className="h-10 w-10 rounded-lg mb-4" />
-            <Skeleton className="h-6 w-32 mb-2" />
-            <Skeleton className="h-4 w-48 mb-4" />
-            <div className="space-y-2 mb-6">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-4 w-40" />
-              ))}
-            </div>
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </div>
-      </div>
-    );
+  if (!user) {
+    redirect("/auth/login");
   }
+
+  // Fetch user's deletion requests
+  const requests = await db.deletionRequest.findMany({
+    where: { userId: user.id },
+    include: { platform: true },
+    orderBy: { updatedAt: "desc" },
+    take: 5, // Get recent 5 for display
+  });
+
+  // Fetch user platforms
+  const userPlatforms = await db.userPlatform.findMany({
+    where: { userId: user.id },
+  });
+
+  // Calculate stats
+  const activePlatforms = userPlatforms.filter(
+    (p) => p.status === "IN_PROGRESS" || p.status === "ACTION_REQUIRED"
+  ).length;
+
+  const completedPlatforms = userPlatforms.filter(
+    (p) => p.status === "COMPLETED"
+  ).length;
+
+  const allRequests = await db.deletionRequest.findMany({
+    where: { userId: user.id },
+  });
+
+  const pendingRequests = allRequests.filter(
+    (r) => r.status === "PENDING" || r.status === "IN_PROGRESS" || r.status === "SUBMITTED"
+  ).length;
+
+  const actionRequiredRequests = allRequests.filter(
+    (r) => r.status === "ACTION_REQUIRED"
+  ).length;
+
+  const stats = {
+    activePlatforms,
+    completedPlatforms,
+    pending: pendingRequests,
+    actionRequired: actionRequiredRequests,
+    totalRequests: allRequests.length,
+  };
+
+  // Calculate overall progress (simple version - can be enhanced)
+  const overallProgress = stats.totalRequests > 0
+    ? Math.round((completedPlatforms / (completedPlatforms + activePlatforms || 1)) * 100)
+    : 0;
+
+  // Get suggested platforms (popular ones user hasn't started)
+  const popularPlatformSlugs = ["facebook", "instagram", "google", "tiktok", "linkedin", "spotify"];
+  const userPlatformIds = userPlatforms.map(up => up.platformId);
+
+  const suggestedPlatforms = await db.platform.findMany({
+    where: {
+      slug: { in: popularPlatformSlugs },
+      id: { notIn: userPlatformIds },
+    },
+    take: 4,
+  });
 
   return (
     <div className="space-y-8">
@@ -319,7 +273,7 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        {recentRequests.length === 0 ? (
+        {requests.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-muted-foreground">
               Ingen forespørsler ennå. Start med å velge en plattform.
@@ -327,29 +281,26 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="divide-y">
-            {recentRequests.map((request) => {
-              const status = statusConfig[request.status as keyof typeof statusConfig] || statusConfig.pending;
-              const steps = request.steps || [];
-              const completedSteps = steps.filter(s => s.completed).length;
-              const totalSteps = steps.length;
-              const progress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+            {requests.map((request) => {
+              const status = statusConfig[request.status as keyof typeof statusConfig] || statusConfig.PENDING;
+              const progress = 0; // Will be calculated from steps when implemented
 
               return (
                 <Link
                   key={request.id}
-                  href={`/dashboard/platforms/${request.platformId}`}
+                  href={`/dashboard/platforms/${request.platform.slug}`}
                   className="flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50">
-                      <PlatformIcon platformId={request.platformId} size={22} />
+                      <PlatformIcon platformId={request.platform.slug} size={22} />
                     </div>
                     <div>
-                      <p className="font-medium">{request.platformName}</p>
+                      <p className="font-medium">{request.platform.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <Progress value={progress} className="h-1.5 w-16" />
                         <span className="text-xs text-muted-foreground">
-                          {completedSteps}/{totalSteps} steg
+                          {progress}%
                         </span>
                       </div>
                     </div>
@@ -387,11 +338,11 @@ export default function DashboardPage() {
             {suggestedPlatforms.map((platform) => (
               <Link
                 key={platform.id}
-                href={`/dashboard/platforms/${platform.id}`}
+                href={`/dashboard/platforms/${platform.slug}`}
                 className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50 hover:border-primary/50"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50">
-                  <PlatformIcon platformId={platform.id} size={22} />
+                  <PlatformIcon platformId={platform.slug} size={22} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">{platform.name}</p>

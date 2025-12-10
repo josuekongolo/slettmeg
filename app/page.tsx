@@ -65,10 +65,10 @@ const platforms = [
 ];
 
 const stats = [
-  { value: "50K+", label: "Kontoer slettet" },
   { value: "100+", label: "Plattformer" },
-  { value: "99%", label: "Suksessrate" },
-  { value: "4.9", label: "Brukerrating", icon: HiStar },
+  { value: "AI", label: "Drevet veiledning" },
+  { value: "GDPR", label: "Kompatibel" },
+  { value: "Norsk", label: "Selskap" },
 ];
 
 export default function Home() {
@@ -135,13 +135,10 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
               {stats.map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="text-3xl font-semibold text-foreground md:text-4xl">
-                      {stat.value}
-                    </span>
-                    {stat.icon && <stat.icon className="h-5 w-5 fill-yellow-400 text-yellow-400" />}
-                  </div>
-                  <span className="mt-1 text-sm text-muted-foreground">{stat.label}</span>
+                  <span className="text-3xl font-semibold text-foreground md:text-4xl">
+                    {stat.value}
+                  </span>
+                  <span className="mt-1 block text-sm text-muted-foreground">{stat.label}</span>
                 </div>
               ))}
             </div>
@@ -248,25 +245,31 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Social Proof */}
+        {/* Trust Section */}
         <section className="border-t bg-muted/30 py-24">
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="mb-6 flex items-center justify-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <HiStar key={i} size={24} className="fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <blockquote className="mb-6 text-xl font-medium text-foreground md:text-2xl">
-                &ldquo;SlettMeg gjorde det utrolig enkelt å ta kontroll over mine personlige data. På bare noen timer hadde jeg sendt slettingsforespørsler til over 20 tjenester.&rdquo;
-              </blockquote>
-              <div className="flex items-center justify-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 font-medium text-primary">
-                  MH
+              <h2 className="mb-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+                Trygg og pålitelig
+              </h2>
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                SlettMeg hjelper nordmenn med å ta kontroll over sine personlige data med full GDPR-støtte og transparent prosess.
+              </p>
+              <div className="mt-8 grid gap-6 sm:grid-cols-3">
+                <div className="rounded-lg border bg-card p-6">
+                  <HiOutlineShieldCheck className="mx-auto mb-3 text-primary" size={32} />
+                  <h3 className="mb-2 font-medium">GDPR-kompatibel</h3>
+                  <p className="text-sm text-muted-foreground">Full støtte for norsk personvernlovgivning</p>
                 </div>
-                <div className="text-left">
-                  <div className="font-medium">Maria Hansen</div>
-                  <div className="text-sm text-muted-foreground">Verifisert bruker</div>
+                <div className="rounded-lg border bg-card p-6">
+                  <HiOutlineLockClosed className="mx-auto mb-3 text-primary" size={32} />
+                  <h3 className="mb-2 font-medium">Sikker prosess</h3>
+                  <p className="text-sm text-muted-foreground">Ingen lagring av sensitive data eller passord</p>
+                </div>
+                <div className="rounded-lg border bg-card p-6">
+                  <RiRobot2Line className="mx-auto mb-3 text-primary" size={32} />
+                  <h3 className="mb-2 font-medium">AI-assistent</h3>
+                  <p className="text-sm text-muted-foreground">Intelligente guider for hver plattform</p>
                 </div>
               </div>
             </div>
