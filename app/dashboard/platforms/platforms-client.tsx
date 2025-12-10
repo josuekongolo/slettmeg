@@ -87,12 +87,10 @@ export function PlatformsClient({
   const platformsWithStatus = useMemo(() => {
     return platforms.map((platform) => {
       const userPlatform = userPlatformMap.get(platform.id);
-      const progress = userPlatform?.progress || 0;
 
       return {
         ...platform,
         status: userPlatform?.status || "NOT_STARTED",
-        progress,
       };
     });
   }, [platforms, userPlatformMap]);
@@ -322,17 +320,6 @@ export function PlatformsClient({
                 <p className="line-clamp-2 text-sm text-muted-foreground">
                   {platform.description}
                 </p>
-
-                {/* Progress bar for in-progress platforms */}
-                {platform.status === "IN_PROGRESS" && platform.progress !== undefined && (
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Fremgang</span>
-                      <span className="font-medium">{Math.round(platform.progress)}%</span>
-                    </div>
-                    <Progress value={platform.progress} className="h-1.5" />
-                  </div>
-                )}
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
