@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useChat } from "ai/react";
 import { HiOutlinePaperAirplane, HiOutlineUser, HiOutlineSparkles, HiOutlineClipboardCopy, HiCheck } from "react-icons/hi";
 import { RiRobot2Line } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
@@ -14,58 +15,20 @@ const suggestedQuestions = [
   "Hvilke plattformer er vanskeligst å slette?",
 ];
 
-const initialMessages = [
-  {
-    role: "assistant",
-    content:
-      "Hei! Jeg er din AI-assistent for personvern. Jeg kan hjelpe deg med å:\n\n• Finne ut hvordan du sletter kontoer på ulike plattformer\n• Generere GDPR-forespørsler\n• Svare på spørsmål om personvern og datasletting\n\nHvordan kan jeg hjelpe deg i dag?",
-  },
-];
-
 export default function AssistantPage() {
-  const [messages, setMessages] = useState(initialMessages);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setInput } = useChat({
+    api: "/api/chat",
+    initialMessages: [
+      {
+        id: "welcome",
+        role: "assistant",
+        content:
+          "Hei! Jeg er din AI-assistent for personvern. Jeg kan hjelpe deg med å:\n\n• Finne ut hvordan du sletter kontoer på ulike plattformer\n• Generere GDPR-forespørsler\n• Svare på spørsmål om personvern og datasletting\n\nHvordan kan jeg hjelpe deg i dag?",
+      },
+    ],
+  });
+
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    const userMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    // Simulate AI response
-    setTimeout(() => {
-      const responses: { [key: string]: string } = {
-        facebook:
-          "For å slette din Facebook-konto:\n\n1. Gå til Innstillinger og personvern > Innstillinger\n2. Klikk på 'Din Facebook-informasjon'\n3. Velg 'Deaktivering og sletting'\n4. Velg 'Slett konto permanent'\n5. Følg instruksjonene\n\n⚠️ Merk: Du har 30 dager til å angre. Etter dette blir alle data slettet permanent.\n\nVil du at jeg genererer en offisiell GDPR-forespørsel til Facebook?",
-        gdpr: "Dine GDPR-rettigheter inkluderer:\n\n✅ **Rett til innsyn** - Du kan be om en kopi av alle data en bedrift har om deg\n\n✅ **Rett til sletting** - Du kan kreve at dataene dine slettes\n\n✅ **Rett til dataportabilitet** - Du kan få dataene dine i et maskinlesbart format\n\n✅ **Rett til å protestere** - Du kan motsette deg behandling av dataene dine\n\nVil du at jeg genererer en GDPR-forespørsel for en spesifikk plattform?",
-        instagram:
-          "Her er en GDPR-forespørsel for Instagram:\n\n---\n\n**Emne: Forespørsel om sletting av personopplysninger (GDPR Art. 17)**\n\nTil Instagram/Meta,\n\nI henhold til GDPR artikkel 17 (retten til sletting), ber jeg herved om fullstendig sletting av alle personopplysninger dere har lagret om meg.\n\nBruker: [DITT BRUKERNAVN]\nE-post: [DIN E-POST]\n\nJeg ber om:\n1. Sletting av min konto og all tilknyttet data\n2. Bekreftelse når slettingen er fullført\n3. Svar innen 30 dager som påkrevd av GDPR\n\nMed vennlig hilsen,\n[DITT NAVN]\n\n---\n\nKopier denne teksten og send den til Instagrams personvernteam.",
-        default:
-          "Takk for spørsmålet! Jeg kan hjelpe deg med informasjon om sletting av kontoer på de fleste plattformer.\n\nHvilken plattform vil du slette deg fra? Eller har du spørsmål om GDPR og personvern generelt?",
-      };
-
-      let response = responses.default;
-      const lowerInput = input.toLowerCase();
-
-      if (lowerInput.includes("facebook")) {
-        response = responses.facebook;
-      } else if (lowerInput.includes("gdpr") || lowerInput.includes("rettighet")) {
-        response = responses.gdpr;
-      } else if (
-        lowerInput.includes("instagram") ||
-        lowerInput.includes("generer")
-      ) {
-        response = responses.instagram;
-      }
-
-      setMessages((prev) => [...prev, { role: "assistant", content: response }]);
-      setIsLoading(false);
-    }, 1500);
-  };
 
   const copyToClipboard = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -99,7 +62,7 @@ export default function AssistantPage() {
             <div className="space-y-4">
               {messages.map((message, index) => (
                 <div
-                  key={index}
+                  key={message.id || index}
                   className={`flex gap-3 ${
                     message.role === "user" ? "flex-row-reverse" : ""
                   }`}
@@ -161,17 +124,11 @@ export default function AssistantPage() {
 
           {/* Input Area */}
           <div className="border-t p-4">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSend();
-              }}
-              className="flex gap-2"
-            >
+            <form onSubmit={handleSubmit} className="flex gap-2">
               <Input
                 placeholder="Skriv din melding..."
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Button type="submit" disabled={isLoading || !input.trim()}>
