@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import { HiOutlinePaperAirplane, HiOutlineUser, HiOutlineSparkles, HiOutlineClipboardCopy, HiCheck } from "react-icons/hi";
 import { RiRobot2Line } from "react-icons/ri";
 import { Button } from "@/components/ui/button";

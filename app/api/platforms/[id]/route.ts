@@ -3,12 +3,13 @@ import { db } from "@/lib/db";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const platform = await db.platform.findFirst({
       where: {
-        OR: [{ id: params.id }, { slug: params.id }],
+        OR: [{ id }, { slug: id }],
       },
     });
 

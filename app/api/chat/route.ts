@@ -1,9 +1,10 @@
-import { OpenAIStream, StreamingTextResponse } from "ai";
-import { openai, SYSTEM_PROMPT } from "@/lib/openai";
+import { streamText } from "ai";
+import { openai as openaiProvider } from "@ai-sdk/openai";
+import { SYSTEM_PROMPT } from "@/lib/openai";
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
@@ -22,33 +23,25 @@ export async function POST(request: Request) {
       });
     }
 
-    // Call OpenAI
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
-      stream: true,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...messages,
-      ],
+    // Stream text using AI SDK v5
+    const result = await streamText({
+      model: openaiProvider("gpt-4-turbo-preview"),
+      system: SYSTEM_PROMPT,
+      messages,
       temperature: 0.7,
-      max_tokens: 1000,
-    });
-
-    // Convert to stream
-    const stream = OpenAIStream(response, {
-      async onCompletion(completion) {
+      async onFinish({ text }) {
         // Save assistant message to database
         await db.chatMessage.create({
           data: {
             userId: user.id,
             role: "assistant",
-            content: completion,
+            content: text,
           },
         });
       },
     });
 
-    return new StreamingTextResponse(stream);
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error("Chat API error:", error);
     return new Response(

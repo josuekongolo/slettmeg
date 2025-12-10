@@ -11,16 +11,17 @@ const updateUserPlatformSchema = z.object({
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
+    const { id } = await params;
     const body = await request.json();
     const validated = updateUserPlatformSchema.parse(body);
 
     const userPlatform = await db.userPlatform.updateMany({
       where: {
-        id: params.id,
+        id,
         userId: user.id,
       },
       data: validated,
@@ -34,7 +35,7 @@ export async function PATCH(
     }
 
     const updated = await db.userPlatform.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { platform: true },
     });
 
@@ -56,14 +57,15 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
+    const { id } = await params;
 
     const deleted = await db.userPlatform.deleteMany({
       where: {
-        id: params.id,
+        id,
         userId: user.id,
       },
     });

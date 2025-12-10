@@ -4,9 +4,9 @@ import { redirect, notFound } from "next/navigation";
 import { PlatformDetailClient } from "./platform-detail-client";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function PlatformDetailPage({ params }: PageProps) {
@@ -16,9 +16,11 @@ export default async function PlatformDetailPage({ params }: PageProps) {
     redirect("/auth/login");
   }
 
+  const { id } = await params;
+
   // Fetch platform by slug
   const platform = await db.platform.findUnique({
-    where: { slug: params.id },
+    where: { slug: id },
   });
 
   if (!platform) {
