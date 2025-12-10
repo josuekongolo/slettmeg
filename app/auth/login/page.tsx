@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -25,11 +26,18 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate sending magic link
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await signIn("email", {
+        email,
+        redirect: false,
+        callbackUrl: "/dashboard"
+      });
       setIsEmailSent(true);
-    }, 1500);
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

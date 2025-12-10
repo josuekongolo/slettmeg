@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { signIn } from "next-auth/react";
 
 const benefits = [
   "AI-drevet veiledning for kontosletting",
@@ -33,11 +34,18 @@ export default function RegisterPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate registration
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await signIn("email", {
+        email,
+        redirect: false,
+        callbackUrl: "/dashboard"
+      });
       setIsEmailSent(true);
-    }, 1500);
+    } catch (error) {
+      console.error("Registration error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
