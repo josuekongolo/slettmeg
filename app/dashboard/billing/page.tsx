@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { stripe, PLANS } from "@/lib/stripe";
 import { BillingClient } from "./billing-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function BillingPage() {
   const user = await getCurrentUser();
 

@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { PlatformsClient } from "./platforms-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPlatformsPage() {
   const user = await getCurrentUser();
 

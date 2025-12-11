@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { HiCheck } from "react-icons/hi";
 import Navbar from "@/components/layout/Navbar";

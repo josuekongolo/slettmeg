@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { RequestsClient } from "./requests-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function RequestsPage() {
   const user = await getCurrentUser();
 

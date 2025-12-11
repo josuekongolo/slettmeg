@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { PlatformDetailClient } from "./platform-detail-client";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{
     id: string;

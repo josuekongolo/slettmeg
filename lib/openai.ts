@@ -1,8 +1,15 @@
 import OpenAI from "openai";
 
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiInstance: OpenAI | null = null;
+
+export function getOpenAIClient() {
+  if (!openaiInstance) {
+    openaiInstance = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openaiInstance;
+}
 
 export const SYSTEM_PROMPT = `Du er en AI-assistent for SlettMeg, en norsk tjeneste som hjelper brukere med å slette sine kontoer og beskytte personvernet.
 

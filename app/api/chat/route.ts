@@ -1,10 +1,11 @@
 import { streamText } from "ai";
 import { openai as openaiProvider } from "@ai-sdk/openai";
-import { SYSTEM_PROMPT } from "@/lib/openai";
+import { SYSTEM_PROMPT, getOpenAIClient } from "@/lib/openai";
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {

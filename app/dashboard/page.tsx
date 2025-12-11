@@ -17,6 +17,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const statusConfig = {
   PENDING: { label: "Venter", variant: "secondary" as const, dot: "bg-yellow-500" },
   SUBMITTED: { label: "Sendt", variant: "default" as const, dot: "bg-blue-500" },

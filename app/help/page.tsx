@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { HiOutlineQuestionMarkCircle, HiOutlineBookOpen, HiOutlineMail, HiOutlineShieldCheck, HiOutlineClock, HiOutlineDocumentText } from "react-icons/hi";
 import { RiRobot2Line } from "react-icons/ri";

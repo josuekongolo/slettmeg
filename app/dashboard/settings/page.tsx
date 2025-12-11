@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { SettingsClient } from "./settings-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const user = await getCurrentUser();
 
